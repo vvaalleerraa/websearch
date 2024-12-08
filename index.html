@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поисковая система</title>
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .search-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80%;
+        }
+        input[type="text"] {
+            padding: 15px;
+            margin: 10px;
+            width: 80%;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            font-size: 16px;
+        }
+        input[type="text"]:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        .results {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 80%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .result-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.3s;
+        }
+        .result-item:hover {
+            background-color: #f9f9f9;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        h3 {
+            margin: 0;
+            color: #333;
+        }
+        p {
+            margin: 5px 0;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Введите текст для поиска">
+        <div id="results" class="results"></div>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const resultsContainer = document.getElementById('results');
+
+        let timeout = null;
+
+        function fetchResults(query) {
+            const apiUrl = `https://dummy-json.mock.beeceptor.com/continents`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    displayResults(data);
+                })
+                .catch(error => {
+                    resultsContainer.innerHTML = 'Ошибка при запросе к API';
+                    console.error('Error fetching results:', error);
+                });
+        }
+
+        function displayResults(data) {
+            resultsContainer.innerHTML = '';
+
+            data.forEach(item => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+
+                resultItem.innerHTML = `
+                    <h3>${item.name}</h3>
+                    <p>Код: ${item.code}</p>
+                    <p>Площадь: ${item.areaSqKm.toLocaleString()} км²</p>
+                    <p>Население: ${item.population.toLocaleString()}</p>
+                    <p>Страны: ${item.countries}</p>
+                    <p>Океаны: ${item.oceans.join(', ')}</p>
+                    <p>Развитые страны: ${item.developedCountries.join(', ')}</p>
+                `;
+
+                resultsContainer.appendChild(resultItem);
+            });
+        }
+
+        searchInput.addEventListener('input', () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                const query = searchInput.value.trim();
+                if (query) {
+                    fetchResults(query);
+                } else {
+                    resultsContainer.innerHTML = '';
+                }
+            }, 500); // Задержка в 500 мс после остановки ввода
+        });
+    </script>
+</body>
+</html>
